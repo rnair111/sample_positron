@@ -41,7 +41,7 @@ AliAnalysisTaskMyCorrection::AliAnalysisTaskMyCorrection():
     fAODTrackCutBit(32),
 
     fMinPtElectron(0.20),
-    fMaxPtElectron(0.60),
+    fMaxPtElectron(10.0),
  
 
     fMinEta(-0.8),
