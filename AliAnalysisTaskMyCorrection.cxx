@@ -107,7 +107,7 @@ void AliAnalysisTaskMyCorrection::UserCreateOutputObjects()
     fHistEtaPositron->Sumw2();
     fList->Add(fHistEtaPositron);
 
-    fHistEnergyPositron = new TH1F("fHistEnergyPositron","#frac{dN}{d#zeta} : Reconstructed : #pi^{+}: ",200,7.5,9.5);
+    fHistEnergyPositron = new TH1F("fHistEnergyPositron","#frac{dN}{d#zeta} : Reconstructed : #pi^{+}: ",200,0.0,1.0);
     fHistEnergyPositron->Sumw2();
     fList->Add(fHistEnergyPositron);
 
@@ -125,7 +125,7 @@ void AliAnalysisTaskMyCorrection::UserCreateOutputObjects()
     fHistEtaElectron->Sumw2();
     fList->Add(fHistEtaElectron);
 
-    fHistEnergyElectron = new TH1F("fHistEnergyElectron","#frac{dN}{d#zeta}  : Reconstructed : #pi^{-}:",200,7.5,9.5);
+    fHistEnergyElectron = new TH1F("fHistEnergyElectron","#frac{dN}{d#zeta}  : Reconstructed : #pi^{-}:",200,0.0,1.0);
     fHistEnergyElectron->Sumw2();
     fList->Add(fHistEnergyElectron);
 
