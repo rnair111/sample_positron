@@ -13,7 +13,7 @@
 #include "AliAnalysisManager.h"
 #include "AliAnalysisTaskSE.h"
 #include "AliCentrality.h"
-
+#include "AliMultSelection.h"
 
 #include "AliAODEvent.h"
 #include "AliAODTrack.h"
@@ -41,9 +41,11 @@ AliAnalysisTaskMyCorrection::AliAnalysisTaskMyCorrection():
     fAODTrackCutBit(32),
 
     fMinPtElectron(0.20),
-    fMaxPtElectron(0.55),
- 
+    fMaxPtElectron(0.60),
 
+    fMinPtPion(0.20),
+    fMaxPtPion(1.0),
+ 
     fMinEta(-0.8),
     fMaxEta(0.8),
     
@@ -107,7 +109,7 @@ void AliAnalysisTaskMyCorrection::UserCreateOutputObjects()
     fHistEtaPositron->Sumw2();
     fList->Add(fHistEtaPositron);
 
-    fHistEnergyPositron = new TH1F("fHistEnergyPositron","#frac{dN}{d#zeta} : Reconstructed : #pi^{+}: ",200,0.0,1.0);
+    fHistEnergyPositron = new TH1F("fHistEnergyPositron","#frac{dN}{d#zeta} : Reconstructed : #pi^{+}: ",200,0.0,2.0);
     fHistEnergyPositron->Sumw2();
     fList->Add(fHistEnergyPositron);
 
@@ -125,7 +127,7 @@ void AliAnalysisTaskMyCorrection::UserCreateOutputObjects()
     fHistEtaElectron->Sumw2();
     fList->Add(fHistEtaElectron);
 
-    fHistEnergyElectron = new TH1F("fHistEnergyElectron","#frac{dN}{d#zeta}  : Reconstructed : #pi^{-}:",200,0.0,1.0);
+    fHistEnergyElectron = new TH1F("fHistEnergyElectron","#frac{dN}{d#zeta}  : Reconstructed : #pi^{-}:",200,0.0,2.0);
     fHistEnergyElectron->Sumw2();
     fList->Add(fHistEnergyElectron);
 
@@ -179,6 +181,8 @@ Double_t AliAnalysisTaskMyCorrection::GetNsigmaTPC(AliPIDResponse* fPIDresponse 
     else if(specie == 2) return nSigmaPion;
     else if(specie == 3) return nSigmaKaon;
     else if(specie == 4) return nSigmaProton;
+    else printf("wrong specie index!\n");
+    return 0;
 }
 
 Bool_t AliAnalysisTaskMyCorrection::IsAODEventAccepted(AliAODEvent *event)
@@ -218,11 +222,14 @@ void AliAnalysisTaskMyCorrection::UserExec(Option_t *)
 
 
     Double_t CentPercent = -1;
-    AliAODHeader *header = (AliAODHeader*) fAOD->GetHeader();
-    if(header) CentPercent = header->GetCentralityP()->GetCentralityPercentile("V0M");
+    //AliAODHeader *header = (AliAODHeader*) fAOD->GetHeader();
+    AliMultSelection *multSelection =static_cast<AliMultSelection*>(fAOD->FindListObject("MultSelection"));
+    if(multSelection) CentPercent = multSelection->GetMultiplicityPercentile("V0M");
+    //if(header) CentPercent = header->GetCentralityP()->GetCentralityPercentile("V0M");
     if(CentPercent < 0.0 || CentPercent > 80.0) return;
 
     Double_t MassElectron     = 0.000511; // GeV/c2 
+    Double_t MassPion = 0.139570;
 
     Short_t   jChargeReco;
     Double_t  jEtaReco;
