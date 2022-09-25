@@ -69,12 +69,10 @@ private:
 
     Double_t fVzMax;//vzmax
 
-
     Int_t fAODTrackCutBit;//track cut bit from track selection (only used for AODs)
 
     Double_t fMinPtElectron, fMaxPtElectron;
     Double_t fMinEta, fMaxEta;//
-
 
     ClassDef(AliAnalysisTaskMyCorrection, 0);
 };
