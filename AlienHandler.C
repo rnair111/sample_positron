@@ -1,13 +1,12 @@
-AliAnalysisGrid* CreateAlienHandler()
+AliAnalysisGrid* AlienHandler()
 {
-
     AliAnalysisAlien *plugin = new AliAnalysisAlien();
     plugin->SetOverwriteMode();
     plugin->SetRunMode("full");////full//terminate
     plugin->SetCheckCopy(kFALSE);
     
     plugin->SetAPIVersion("V1.1x");
-    plugin->SetAliPhysicsVersion("vAN-20191028-1");
+    plugin->SetAliPhysicsVersion("vAN-20220923_ROOT6-1");
     plugin->SetGridDataDir("/alice/data/2010/LHC10h");
     plugin->SetDataPattern("/ESDs/pass2/AOD160/*AOD.root");
     plugin->SetRunPrefix("000");
@@ -24,8 +23,9 @@ AliAnalysisGrid* CreateAlienHandler()
     plugin->AddRunNumber(139437);
     plugin->AddRunNumber(139360);
     plugin->AddRunNumber(139329);
-    plugin->AddRunNumber(139328);/*
+    plugin->AddRunNumber(139328);
 
+    /*
     plugin->AddRunNumber(139314);
     plugin->AddRunNumber(139310);
     plugin->AddRunNumber(139309);
@@ -39,12 +39,12 @@ AliAnalysisGrid* CreateAlienHandler()
     plugin->AddRunNumber(139028);*/
 
     plugin->SetGridWorkingDir("PbPb_Data");
-    plugin->SetGridOutputDir( "PbPb_Data");
+    plugin->SetGridOutputDir( "output");
 
     plugin->SetAnalysisSource("AliAnalysisTaskMyCorrection.cxx");
     plugin->SetAdditionalLibs("AliAnalysisTaskMyCorrection.h AliAnalysisTaskMyCorrection.cxx");
 
-    plugin->SetDefaultOutputs();
+    plugin->SetDefaultOutputs(kTRUE);
     plugin->SetAnalysisMacro("Task.C");
     plugin->SetSplitMaxInputFileNumber(100);
     plugin->SetExecutable("Task.sh");
