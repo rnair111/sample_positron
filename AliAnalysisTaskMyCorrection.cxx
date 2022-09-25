@@ -290,7 +290,7 @@ void AliAnalysisTaskMyCorrection::UserExec(Option_t *)
         {
 
 
-            if((jPtReco <= fMaxPtPion ) && (jPtReco >= fMinPtPion))
+            if((jPtReco <= fMaxPtElectron ) && (jPtReco >= fMinPtElectron))
             {
             	
             	fHistdEdxTPCAfterCut->Fill(aodTrack->P(),aodTrack->GetTPCsignal());
