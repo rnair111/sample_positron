@@ -10,7 +10,7 @@
 void SetupEnvironment();
 void run(TString runMode = "full")
 {
-    const Bool_t local = kFALSE;
+    const Bool_t local = kTRUE;
     const Bool_t isMC = kFALSE;
     const Int_t recoPass = 2;
 
@@ -18,11 +18,11 @@ void run(TString runMode = "full")
     SetupEnvironment();
 
     gROOT->LoadMacro( "AliAnalysisTaskMyCorrection.cxx+g" );
+    AliAnalysisTaskMyCorrection* task = new AliAnalysisTaskMyCorrection();
+    if(!task) return;
 
     TMacro physseladd(gSystem->ExpandPathName("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C"));
     AliPhysicsSelectionTask *physseltask = reinterpret_cast<AliPhysicsSelectionTask *>(physseladd.Exec(Form("%d", isMC)));
-    AliAnalysisTaskMyCorrection* task = new AliAnalysisTaskMyCorrection();
-    if(!task) return;
     task->SelectCollisionCandidates(AliVEvent::kMB);
 
     //Analysis Manager
