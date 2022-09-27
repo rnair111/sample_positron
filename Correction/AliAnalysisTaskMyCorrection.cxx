@@ -13,77 +13,60 @@
 #include "AliAnalysisManager.h"
 #include "AliAnalysisTaskSE.h"
 #include "AliCentrality.h"
-
+#include "AliMultSelection.h"
 
 #include "AliAODEvent.h"
 #include "AliAODTrack.h"
 #include "AliAODHandler.h"
-#include "AliAODMCHeader.h"
 #include "AliAODInputHandler.h"
-#include "AliAODMCParticle.h"
 #include "AliAODpidUtil.h"
 #include "AliAnalysisUtils.h"
+#include "AliAODMCParticle.h"
 
-
-#include "AliMCEvent.h"
-#include "AliStack.h"
-
-#include "AliGenEventHeader.h"
 #include "AliLog.h"
 #include "AliInputEventHandler.h"
 #include "AliAnalysisTaskMyCorrection.h"
 
 ClassImp(AliAnalysisTaskMyCorrection)
-
 //________________________________________________________________________
-AliAnalysisTaskMyCorrection::AliAnalysisTaskMyCorrection():
-    AliAnalysisTaskSE("taskPIDCorrection"),
+AliAnalysisTaskMyCorrection::AliAnalysisTaskMyCorrection()
+: AliAnalysisTaskSE("taskPIDCorrection"),
     fAOD(0),
     fNSigmaPID(3.0),
     fArrayMC(0),
-
     fPIDResponse(0),
     fList(0),
-  
     fVzMax(10.),
     fAODTrackCutBit(32),
-    
     fMinPtElectron(0.20),
     fMaxPtElectron(0.60),
-
     fMinEta(-0.8),
     fMaxEta(0.8)
+ {   
+    for (Int_t iCent = 0; iCent < 7; ++iCent) {
+       fHistPtMCRecoPositron[iCent] = NULL;
+       fHistPhiMCRecoPositron[iCent] = NULL;
+       fHistPtMCRecoElectron[iCent] = NULL;
+       fHistPhiMCRecoElectron[iCent] = NULL;
+       fHistEtaMCRecoPositron[iCent] = NULL;
+       fHistEtaMCRecoElectron[iCent] = NULL;
 
-{
+       fHistEnergyMCRecoPositron[iCent] = NULL;
+       fHistEnergyMCRecoElectron[iCent] = NULL;
 
-	for (int iCent = 0; iCent < 7; ++iCent)
-	{
-		
-    fHistPtMCRecoPositron[iCent] = NULL;
-    fHistPhiMCRecoPositron[iCent] = NULL;
-    fHistPtMCRecoElectron[iCent] = NULL;
-    fHistPhiMCRecoElectron[iCent] = NULL;
-    fHistEtaMCRecoPositron[iCent] = NULL;
-    fHistEtaMCRecoElectron[iCent] = NULL;
-    fHistEnergyMCRecoPositron[iCent] = NULL;
-    fHistEnergyMCRecoElectron[iCent] = NULL;
+       fHistPtMCPositronTruth[iCent] = NULL;
+       fHistPhiMCPositronTruth[iCent] = NULL;
+       fHistPtMCElectronTruth[iCent] = NULL;
+       fHistPhiMCElectronTruth[iCent] = NULL;
+       fHistEtaMCPositronTruth[iCent] = NULL;
+       fHistEtaMCElectronTruth[iCent] = NULL;
 
-    fHistPtMCPositronTruth[iCent] = NULL;
-    fHistPhiMCPositronTruth[iCent] = NULL;
-    fHistPtMCElectronTruth[iCent] = NULL;
-    fHistPhiMCElectronTruth[iCent] = NULL;
-    fHistEtaMCPositronTruth[iCent] = NULL;
-    fHistEtaMCElectronTruth[iCent] = NULL;
-    fHistEnergyMCPositronTruth[iCent] = NULL;
-    fHistEnergyMCElectronTruth[iCent] = NULL; 
-
-	}
-  
+       fHistEnergyMCPositronTruth[iCent] = NULL;
+       fHistEnergyMCElectronTruth[iCent] = NULL; 
+    }
     DefineInput(0, TChain::Class());
     DefineOutput(1, TList::Class());
-
 }
-
 
 AliAnalysisTaskMyCorrection::~AliAnalysisTaskMyCorrection()
 {
@@ -91,7 +74,6 @@ AliAnalysisTaskMyCorrection::~AliAnalysisTaskMyCorrection()
 }
 
 //-----------------------------------------------------Start OutPutObjects - Define Binning and Histogra,ms In This Function----------------------------------------------------------------------------------------------
-
 void AliAnalysisTaskMyCorrection::UserCreateOutputObjects()
 {
     fList = new TList();
@@ -99,10 +81,9 @@ void AliAnalysisTaskMyCorrection::UserCreateOutputObjects()
     fList->SetOwner();
 
         
-        for (int iCent = 0; iCent < 7; ++iCent)
-        {
+        for (int iCent = 0; iCent < 7; ++iCent) {
 
-// Generated Level Kinematic Variables
+        // Generated Level Kinematic Variables
         fHistPtMCPositronTruth[iCent]= new TH1F(Form("fHistPtMCPositronTruth[%d]",iCent),"#frac{dN}{dp_{T}} : Generated : #pi^{+}: ",225,0.2,0.65);
         fHistPtMCPositronTruth[iCent]->Sumw2();
         fList ->Add(fHistPtMCPositronTruth[iCent]);
@@ -178,78 +159,7 @@ void AliAnalysisTaskMyCorrection::UserCreateOutputObjects()
         PostData(1, fList);
 
 }
-
-Int_t AliAnalysisTaskMyCorrection::GetCentralityClass(Double_t iCentPer)
-{
-    if(iCentPer >=0.0 && iCentPer <= 5.0)             return 0;
-    else if(iCentPer >=5.00 && iCentPer <= 10.0)      return 1;
-    else if(iCentPer >=10.0 && iCentPer <= 20.0)      return 2;
-    else if(iCentPer >=20.0 && iCentPer <= 40.0)      return 3;
-    else if(iCentPer >=40.0 && iCentPer <= 60.0)      return 4;
-    else if(iCentPer >=60.0 && iCentPer <= 80.0)      return 5;
-    else return -1;
-
-}
-
-Double_t AliAnalysisTaskMyCorrection::GetEnergyOfTrackRec(AliAODTrack* track,Double_t mass)
-{
-
-    Double_t Pz  = track->Pz();
-    Double_t P1  = track->P();
-    Double_t Pt  = track->Pt();
-
-    return TMath::Sqrt( (Pz * Pz) + (mass * mass) + (Pt * Pt)); 
-
-}
-//-----------------------------------------------------------------------------
-Double_t AliAnalysisTaskMyCorrection::GetEnergyOfTrackGen(AliAODMCParticle * MCtrack, Double_t  mass)
-{
-
-    Double_t Pz  = MCtrack->Pz();
-    Double_t P1  = MCtrack->P();
-    Double_t Pt  = MCtrack->Pt();
-    return TMath::Sqrt( (Pt * Pt) + (mass * mass) + (Pz * Pz) );
-}
-
-Double_t AliAnalysisTaskMyCorrection::GetNsigmaTPC(AliPIDResponse* fPIDresponse , AliAODTrack* track , Int_t specie)
-{
-
-    Double_t nSigmaElectron = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kElectron));
-    Double_t nSigmaMuon     = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kMuon));
-    Double_t nSigmaPion     = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kPion));
-    Double_t nSigmaKaon     = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kKaon));
-    Double_t nSigmaProton   = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kProton));
-    
-    if(specie == 0) return nSigmaElectron;
-    else if(specie == 1) return nSigmaMuon;
-    else if(specie == 2) return nSigmaPion;
-    else if(specie == 3) return nSigmaKaon;
-    else if(specie == 4) return nSigmaProton;
-}
-
-
-Bool_t AliAnalysisTaskMyCorrection::IsAODEventAccepted(AliAODEvent *event)
-{
-
-       //Trigger Selection
-    UInt_t maskPhysSel = ((AliInputEventHandler*)(AliAnalysisManager::GetAnalysisManager()->GetInputEventHandler()))->IsEventSelected();
-    if((maskPhysSel & AliVEvent::kMB)==0) return kFALSE;
-
-      const AliAODVertex *vertex = event->GetPrimaryVertex();
-        if(vertex) 
-        {
-        if(TMath::Abs(vertex->GetZ()) < fVzMax) 
-            { 
-                return kTRUE;
-            }
-        else return kFALSE;
-        }
-        else return kFALSE;
-
-}
-
-
-//--------------------------------------------------------------------UserExec-----------------------------------------------------------------------------------//
+//-----------------------------------------UserExec------------------------------------------------------------------------//
 void AliAnalysisTaskMyCorrection::UserExec(Option_t *)
 {
 
@@ -269,14 +179,21 @@ void AliAnalysisTaskMyCorrection::UserExec(Option_t *)
 
    if(!IsAODEventAccepted(fAOD)) return; // Event Selection
 
+//    Double_t CentPercent = -1;
+//    AliAODHeader *header = (AliAODHeader*) fAOD->GetHeader();
+//    if(header) CentPercent = header->GetCentralityP()->GetCentralityPercentile("V0M");
+//    if(CentPercent < 0.0 || CentPercent > 80.0) return;
+//    Int_t cent = GetCentralityClass(CentPercent);
+//    if(cent == -1) return;
+   
     Double_t CentPercent = -1;
-    AliAODHeader *header = (AliAODHeader*) fAOD->GetHeader();
-    if(header) CentPercent = header->GetCentralityP()->GetCentralityPercentile("V0M");
+    //AliAODHeader *header = (AliAODHeader*) fAOD->GetHeader();
+    AliMultSelection *multSelection =static_cast<AliMultSelection*>(fAOD->FindListObject("MultSelection"));
+    if(multSelection) CentPercent = multSelection->GetMultiplicityPercentile("V0M");
+    //if(header) CentPercent = header->GetCentralityP()->GetCentralityPercentile("V0M");
     if(CentPercent < 0.0 || CentPercent > 80.0) return;
     Int_t cent = GetCentralityClass(CentPercent);
     if(cent == -1) return;
-   
-
 
     Double_t MassElectron     = 0.000511; // GeV/c2 
 
@@ -450,9 +367,9 @@ void AliAnalysisTaskMyCorrection::UserExec(Option_t *)
         if(TMath::Abs(pdgCodeReco) == 11 && MostProbableSpecies == 0)
         {
 
-            if((jPtReco <= fMaxPtPion ) && (jPtReco >= fMinPtPion))
+            if((jPtReco <= fMaxPtElectron ) && (jPtReco >= fMinPtElectron))
             {
-                Double_t    jEnergyReco     = TMath::Abs(GetEnergyOfTrackRec(aodTrack,MassPion)); 
+                Double_t    jEnergyReco     = TMath::Abs(GetEnergyOfTrackRec(aodTrack,MassElectron)); 
 
                     if(jChargeReco > 0) {
                     fHistPhiMCRecoPositron[6]->Fill(jPhiReco);
@@ -471,15 +388,15 @@ void AliAnalysisTaskMyCorrection::UserExec(Option_t *)
                     fHistPtMCRecoElectron[6]->Fill(jPtReco);
                     fHistEtaMCRecoElectron[6]->Fill(jEtaReco);
                     fHistEnergyMCRecoElectron[6]->Fill(jEnergyReco);
-                    fHistCosMCRecoElectron[6]->Fill(jCosReco);
-                    fHistPtSqMCRecoElectron[6]->Fill(jPtReco*jPtReco);
+                    //fHistCosMCRecoElectron[6]->Fill(jCosReco);
+                    //fHistPtSqMCRecoElectron[6]->Fill(jPtReco*jPtReco);
 
                     fHistPhiMCRecoElectron[cent]->Fill(jPhiReco);
                     fHistPtMCRecoElectron[cent]->Fill(jPtReco);
                     fHistEtaMCRecoElectron[cent]->Fill(jEtaReco);
                     fHistEnergyMCRecoElectron[cent]->Fill(jEnergyReco);
-                    fHistCosMCRecoElectron[cent]->Fill(jCosReco);
-                    fHistPtSqMCRecoElectron[cent]->Fill(jPtReco*jPtReco);
+                    //fHistCosMCRecoElectron[cent]->Fill(jCosReco);
+                    //fHistPtSqMCRecoElectron[cent]->Fill(jPtReco*jPtReco);
 
                 }//Charge
             }//Condition
@@ -494,4 +411,71 @@ void AliAnalysisTaskMyCorrection::Terminate(Option_t *)
 
 //Termination: Nothing Here as it causes crash while mearging
 
+}
+
+Int_t AliAnalysisTaskMyCorrection::GetCentralityClass(Double_t iCentPer)
+{
+    if(iCentPer >=0.0 && iCentPer <= 5.0)             return 0;
+    else if(iCentPer >=5.00 && iCentPer <= 10.0)      return 1;
+    else if(iCentPer >=10.0 && iCentPer <= 20.0)      return 2;
+    else if(iCentPer >=20.0 && iCentPer <= 40.0)      return 3;
+    else if(iCentPer >=40.0 && iCentPer <= 60.0)      return 4;
+    else if(iCentPer >=60.0 && iCentPer <= 80.0)      return 5;
+    else return -1;
+}
+
+Bool_t AliAnalysisTaskMyCorrection::IsAODEventAccepted(AliAODEvent *event)
+{
+
+       //Trigger Selection
+    UInt_t maskPhysSel = ((AliInputEventHandler*)(AliAnalysisManager::GetAnalysisManager()->GetInputEventHandler()))->IsEventSelected();
+    if((maskPhysSel & AliVEvent::kMB)==0) return kFALSE;
+
+      const AliAODVertex *vertex = event->GetPrimaryVertex();
+        if(vertex) 
+        {
+        if(TMath::Abs(vertex->GetZ()) < fVzMax) 
+            { 
+                return kTRUE;
+            }
+        else return kFALSE;
+        }
+        else return kFALSE;
+
+}
+
+Double_t AliAnalysisTaskMyCorrection::GetEnergyOfTrackRec(AliAODTrack* track,Double_t mass)
+{
+
+    Double_t Pz  = track->Pz();
+    Double_t P1  = track->P();
+    Double_t Pt  = track->Pt();
+
+    return TMath::Sqrt( (Pz * Pz) + (mass * mass) + (Pt * Pt)); 
+
+}
+//-----------------------------------------------------------------------------
+Double_t AliAnalysisTaskMyCorrection::GetEnergyOfTrackGen(AliAODMCParticle * MCtrack, Double_t  mass)
+{
+    Double_t Pz  = MCtrack->Pz();
+    Double_t P1  = MCtrack->P();
+    Double_t Pt  = MCtrack->Pt();
+    return TMath::Sqrt( (Pt * Pt) + (mass * mass) + (Pz * Pz) );
+}
+
+Double_t AliAnalysisTaskMyCorrection::GetNsigmaTPC(AliPIDResponse* fPIDresponse , AliAODTrack* track , Int_t specie)
+{
+
+    Double_t nSigmaElectron = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kElectron));
+    Double_t nSigmaMuon     = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kMuon));
+    Double_t nSigmaPion     = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kPion));
+    Double_t nSigmaKaon     = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kKaon));
+    Double_t nSigmaProton   = TMath::Abs(fPIDResponse->NumberOfSigmasTPC(track,(AliPID::EParticleType)AliPID::kProton));
+    
+    if(specie == 0) return nSigmaElectron;
+    else if(specie == 1) return nSigmaMuon;
+    else if(specie == 2) return nSigmaPion;
+    else if(specie == 3) return nSigmaKaon;
+    else if(specie == 4) return nSigmaProton;
+    return 0;
 }
