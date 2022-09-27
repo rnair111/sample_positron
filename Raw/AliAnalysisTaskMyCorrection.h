@@ -71,7 +71,7 @@ private:
 
     Int_t fAODTrackCutBit;//track cut bit from track selection (only used for AODs)
 
-    Double_t fMinPtElectron, fMaxPtElectron;
+    Double_t fMinPtElectron, fMaxPtElectron, fMinPtPion, fMaxPtPion;
     Double_t fMinEta, fMaxEta;//
 
     ClassDef(AliAnalysisTaskMyCorrection, 0);

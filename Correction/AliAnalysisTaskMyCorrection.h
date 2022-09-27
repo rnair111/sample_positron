@@ -27,17 +27,14 @@ class AliMultSelection;
 class AliAnalysisTaskMyCorrection : public AliAnalysisTaskSE {
 public:
     AliAnalysisTaskMyCorrection();
-    virtual ~AliAnalysisTaskMyCorrection ();
-
+    virtual ~AliAnalysisTaskMyCorrection();
 
     virtual void   UserCreateOutputObjects();
     virtual void   UserExec(Option_t *option);
     virtual void   Terminate(Option_t *);
 
-
     Bool_t IsAODEventAccepted(AliAODEvent *event );
     Double_t GetNsigmaTPC(AliPIDResponse* fPIDResponse , AliAODTrack* track , Int_t specie);
-
 
 
     Double_t GetEnergyOfTrackRec(AliAODTrack* track, Double_t mass);
@@ -47,22 +44,22 @@ public:
 
 private:
     AliAODEvent* fAOD;
-    TClonesArray *fArrayMC; 
-    
-
-    TList        *fList;
-    AliPIDResponse *fPIDResponse;//! PID response object
     Double_t fNSigmaPID;
+    TClonesArray *fArrayMC; 
+    AliPIDResponse *fPIDResponse;//! PID response object
+    TList        *fList;
+    Double_t fVzMax;
+    Int_t fAODTrackCutBit;
+    Double_t fMinPtElectron, fMaxPtElectron, fMinEta, fMaxEta;
 
-    
-    TH1F *fHistPhiMCPositronTruth[7];
     TH1F *fHistPtMCPositronTruth[7];
+    TH1F *fHistPhiMCPositronTruth[7];
     TH1F *fHistEtaMCPositronTruth[7];
-    TH1F *fHistZetaMCPositronTruth[7];
+    //TH1F *fHistZetaMCPositronTruth[7];
     TH1F *fHistPhiMCElectronTruth[7];
     TH1F *fHistPtMCElectronTruth[7];
     TH1F *fHistEtaMCElectronTruth[7];
-    TH1F *fHistZetaMCElectronTruth[7]; 
+    //TH1F *fHistZetaMCElectronTruth[7]; 
 
     TH1F *fHistPtMCRecoPositron[7];
     TH1F *fHistPhiMCRecoPositron[7];
@@ -70,19 +67,15 @@ private:
     TH1F *fHistPhiMCRecoElectron[7];
     TH1F *fHistEtaMCRecoPositron[7];
     TH1F *fHistEtaMCRecoElectron[7];
-    TH1F *fHistZetaMCRecoPositron[7];
-    TH1F *fHistZetaMCRecoElectron[7]; 
+    //TH1F *fHistZetaMCRecoPositron[7];
+    //TH1F *fHistZetaMCRecoElectron[7]; 
 
-    Double_t fVzMax;
+    TH1F *fHistEnergyMCRecoPositron[7];
+    TH1F *fHistEnergyMCRecoElectron[7];
 
+    TH1F *fHistEnergyMCPositronTruth[7];
+    TH1F *fHistEnergyMCElectronTruth[7]; 
 
-    Int_t fAODTrackCutBit;//track cut bit from track selection (only used for AODs)
-
-    Double_t fMinPtElectron, fMaxPtElectron;
-    Double_t fMinEta, fMaxEta;
-
- 
-
-    ClassDef(AliAnalysisTaskMyCorrection, 0);
+    ClassDef(AliAnalysisTaskMyCorrection, 2);
 };
 #endif
